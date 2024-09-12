@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  starRating  Decimal
+  reviewer    User?     @relation(fields: [reviewerId], references: [id])
+  reviewerId  Int?
+  comment     String
+  album       Album?    @relation(fields: [albumId], references: [id])
+  albumId     Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  username    String    @unique
+  reviews     Review[]
+  bio         String?
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Album {
+  id          Int       @id @default(autoincrement())
+  discogsId   Int?      @unique
+  albumArtUrl String?
+  title       String?
+  country     String?
+  artist      String?
+  year        String?
+  totalRating Decimal?
+  reviews     Review[]
+  genre       Genre?    @relation(fields: [genreId], references: [id])
+  genreId     Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Genre {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  albums      Album[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

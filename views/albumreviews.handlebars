@@ -1,0 +1,41 @@
+<h2 class="fst-italic fw-bold text-center" style="font-size:45px;padding-left:10px;padding-bottom:40px;color:white;">
+    Reviews
+</h2>
+
+<div class="row justify-content-center">
+    <div class="col-6" style="position:fixed;top:40%;left:1%;max-width:35%;">
+        <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px;width:fit-content;">
+            <div class="row g-0">
+                <div class="col-auto">
+                    <img src={{albumReviews.album.albumArtUrl}} style="width:200px;height:200px;">
+                </div>
+                <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                    <p><b>
+                        {{albumReviews.album.totalRating}}/10
+                        <br><b>{{albumReviews.album.title}}</b>
+                        <br>{{albumReviews.album.artist}}</b>
+                        <br>{{albumReviews.album.year}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6" style="padding-right:20px;margin-left:300px;">
+        {{#each albumReviews.reviewersList}}
+            <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:100%;">
+                <div class="row">
+                    <div class="col text-start">
+                        <b>{{this.user.username}}</b>&nbsp;{{this.review.starRating}}/10
+                    </div>
+                    <div class="col text-end">
+                        {{this.review.createdAt}}
+                    </div>
+                </div>
+                <div>
+                    {{this.review.comment}}
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>

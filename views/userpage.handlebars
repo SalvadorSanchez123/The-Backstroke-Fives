@@ -1,0 +1,56 @@
+{{!-- "https://i.discogs.com/u7pvZ8gqWzPR8yX_2FVM4EonfU_4dgyuIhIsEouPWL0/rs:fit/g:sm/q:90/h:600/w:597/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU1NTgx/MC0xMzgzNzAwNjA5/LTczNzIuanBlZw.jpeg" --}}
+
+<h2 class="fst-italic fw-bold text-center" style="font-size:45px;padding-left:10px;padding-bottom:40px;color:white;">
+    {{user.username}}'s Reviews
+</h2>
+
+<div class="row justify-content-center">
+    <div class="col-6" style="position:fixed;top:40%;left:1%;max-width:35%;">
+        <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:fit-content;">
+            <div class="row g-0">
+                <div class="col-auto">
+                    <img src="https://i.discogs.com/u7pvZ8gqWzPR8yX_2FVM4EonfU_4dgyuIhIsEouPWL0/rs:fit/g:sm/q:90/h:600/w:597/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU1NTgx/MC0xMzgzNzAwNjA5/LTczNzIuanBlZw.jpeg" style="width:200px;height:200px;">
+                </div>
+                <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                    <p>
+                        <b style="font-size:20px;">User: {{user.username}}</b>
+                        <br><b>Amount Reviewed:</b>&nbsp;{{user.numberOfReviews}}
+                        <br><b>Bio:<br> </b> {{user.bio}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6" style="padding-right:20px;margin-left:300px;">
+        {{#each user.reviewAlbums}}
+            <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:100%;">
+                <div class="row g-0">
+                    <div class="col-auto" style="padding-right:15px;">
+                        <a href="/albums/reviews/{{this.album.id}}">
+                            <img src={{this.album.albumArtUrl}} style="width:100px;height:100px;">
+                        </a>
+                        <p><b>
+                            {{this.review.starRating}}/10
+                            <br><b>{{this.album.title}}</b>
+                            <br>{{this.album.artist}}
+                        </b></p>
+                    </div>
+                    <div class="col">
+                        <div class="row">
+                            <div class="col text-start">
+                                <b>Comment:</b>
+                            </div>
+                            <div class="col text-end">
+                                {{this.review.createdAt}}
+                            </div>
+                        </div>
+                        <div>
+                            {{this.review.comment}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>

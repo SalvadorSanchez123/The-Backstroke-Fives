@@ -68,7 +68,7 @@ const searchAlbumFromArchive = async (req, res) => {
 
 
 const getAlbumsReviewedThisWeekSorted = (allAlbums) => {
-    //Albums from this year (OR SHOULD IT BE LAST FIVE YEARS)
+    //Albums from this year (OR SHOULD IT BE LAST FIVE YEARS?)
     // const albumsFromthisYear = allAlbums.filter(album => album.year == new Date().getFullYear());
     const albumsFromthisYear = allAlbums;
     // Albums reviewed this week
@@ -81,6 +81,7 @@ const getAlbumsReviewedThisWeekSorted = (allAlbums) => {
     //         return created > lastMonday;
     //     });
     // });
+    const albumsReviewedThisWeek = albumsFromthisYear;
 
     const reviewedAndSortedAlbums  = albumsReviewedThisWeek.sort((albumA, albumB) => {
         let a = Number.parseFloat(albumA.totalRating);

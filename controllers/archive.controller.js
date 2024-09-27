@@ -9,6 +9,17 @@ const prisma = new PrismaClient();
 const addOne = async (req, res) => {
     const topLists = await albums.getTopFiveLists(req, res);
 
+    const existsArchive = await prisma.archive.findFirst({
+        where: {
+            week: topLists.date.weekNumber,
+            year: topLists.date.year,
+        },
+    });
+
+    if (existsArchive) {
+        return;
+    }
+
     if (!topLists.albumsToArchive) {
         const archive = await prisma.archive.create({
             data: {
@@ -17,19 +28,19 @@ const addOne = async (req, res) => {
                 lists: null,
             },
         });
-        return;
     }
-
-    const archive = await prisma.archive.create({
-        data: {
-            week: `${topLists.date.weekNumber}`,
-            year: `${topLists.date.year}`,
-            lists: topLists,
-            albums: {
-                connect: topLists.albumsToArchive,
+    else {
+        const archive = await prisma.archive.create({
+            data: {
+                week: `${topLists.date.weekNumber}`,
+                year: `${topLists.date.year}`,
+                lists: topLists,
+                albums: {
+                    connect: topLists.albumsToArchive,
+                },
             },
-        },
-    });
+        });
+    }
 }
 
 const getAll = async (req, res) => {

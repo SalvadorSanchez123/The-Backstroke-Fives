@@ -244,7 +244,7 @@ const getReviewEdit = async (req, res) => {
     });
 
     //Can only update within 30 minutes of being created
-    let halfHourInMilliseconds = 30 * 60 * 1000 * 1000;
+    let halfHourInMilliseconds = 30 * 60 * 1000;
     let elapsedMilliseconds = Date.now().valueOf() - review.createdAt.valueOf();
     let canUpdate = elapsedMilliseconds < halfHourInMilliseconds ? true : false;
     //Ensure that the user updating this review is the user that is logged in

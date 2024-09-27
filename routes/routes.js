@@ -4,6 +4,7 @@ import users from '../controllers/user.controller.js';
 import albums from '../controllers/album.controller.js';
 import genres from '../controllers/genre.controller.js';
 import auth from '../controllers/auth.controller.js';
+import archives from '../controllers/archive.controller.js';
 import passport from 'passport';
 
 const router = new express.Router();
@@ -78,7 +79,8 @@ router.post('/login', passport.authenticate('local', {
 router.get('/top',albums.getTopAlbum);
 //get all reviews from album
 router.get('/albums/reviews/:album', albums.getAllReviews);
-router.get('/', albums.getTopFiveLists);
+router.get('/', albums.getHomePage);
+router.get('/albums/getone/:album', albums.getOne);
 // router.get('/', (req, res) => {
 //     //render ('home', topART, topRating, topName, topArtist);
 //     //render (generate the whole top five list)
@@ -86,6 +88,14 @@ router.get('/', albums.getTopFiveLists);
 //     res.render('home');
 // });
 router.get('/albums', albums.getAll);
+router.get('/random10', albums.getRandom10);
+router.get('/archives', archives.getArchives);
+router.get('/archives/:archive', archives.getArchives);
+router.get('/archives/album/:album', archives.getArchives);
+router.get('/archives/album/:album/:archive', archives.getArchives);
+router.get('/archives/getone/:archive', archives.getOne);
+
+// router.post('/addarchive', archives.addOne);
 
 
 //review routes
@@ -93,7 +103,8 @@ router.get('/albums', albums.getAll);
 router.get('/reviews', reviews.getAll);
 // router.delete('/reviews/:review', reviews.deleteOne);
 // router.put('/reviews/:review', reviews.updateOne);
-router.get('/reviews/:review', reviews.getOne);
+router.get('/reviews/getone/:review', reviews.getOne);
+router.get('/reviews/view/:review', reviews.getReviewEdit);
 
 //User routes
 router.post('/users', users.addOne);
@@ -118,16 +129,16 @@ router.get('/toplist', genres.getTopList);
 // user authenticated routes
 router.use(auth.isAuthenticated);
 router.get('/search',albums.getSearchPage);
-router.get('/search/results', albums.searchAlbumToReview)
+router.get('/search/results', albums.searchAlbumToReview);
 router.get('/users/reviews/:user', users.getUserWithReviews);
 router.get('/reviews/getadd/:album', reviews.getAddReviewPage);
 router.post('/reviews/add/:album', reviews.addOne);
 router.get('/logout', auth.logout);
 //edit review
 //make review
-router.delete('/reviews/:review', reviews.deleteOne);
-router.put('/reviews/:review', reviews.updateOne);
-
+router.post('/reviews/delete/:review', reviews.deleteOne);
+router.post('/reviews/update/:review', reviews.updateOne);
+router.get('/reviews/getupdate/:review', reviews.getUpdatePage);
 
 
 //Export our router

@@ -1,9 +1,9 @@
-<h2 class="fst-italic fw-bold text-center" style="font-size:45px;padding-left:10px;padding-bottom:40px;color:white;">
+<h2 class="fst-italic fw-bold text-center" style="font-size:45px;padding-bottom:40px;color:white;">
     Reviews
 </h2>
 
 <div class="row justify-content-center">
-    <div class="col-6" style="position:fixed;top:40%;left:1%;max-width:35%;">
+    <div class="col-6" style="position:fixed;top:40%;left:1%;max-width:30%;">
         <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px;width:fit-content;">
             <div class="row g-0">
                 <div class="col-auto">
@@ -15,6 +15,9 @@
                         <br><b>{{albumReviews.album.title}}</b>
                         <br>{{albumReviews.album.artist}}</b>
                         <br>{{albumReviews.album.year}}
+                        {{#if albumReviews.album.hasArchives}}
+                        <br><a href="/archives/album/{{albumReviews.album.id}}" style="color:black;">Album's Top Five Archives</a>
+                        {{/if}}
                     </p>
                 </div>
             </div>
@@ -23,7 +26,11 @@
 
     <div class="col-6" style="padding-right:20px;margin-left:300px;">
         {{#each albumReviews.reviewersList}}
-            <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:100%;">
+        {{!-- btn-secondary --}}
+            <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:10px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:100%;">
+                <div style="padding-bottom:10px">
+                    <a href="/reviews/view/{{this.review.id}}" style="color:black;">View</a>
+                </div>
                 <div class="row">
                     <div class="col text-start">
                         <b>{{this.user.username}}</b>&nbsp;{{this.review.starRating}}/10
@@ -32,7 +39,7 @@
                         {{this.review.createdAt}}
                     </div>
                 </div>
-                <div>
+                <div class="text-start">
                     {{this.review.comment}}
                 </div>
             </div>

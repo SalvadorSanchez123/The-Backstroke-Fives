@@ -11,7 +11,7 @@
         <script src="/js/bootstrap.min.js"></script>
 
 
-        <nav class="navbar navbar-default" style="padding-bottom:3px;position:sticky;top:0;background:rgb(147, 85, 23)">
+        <nav class="navbar navbar-default" style="padding-bottom:3px;top:0;background:rgb(147, 85, 23);position:sticky;z-index:1;"><!--position:sticky;-->
             <div class="container-fluid" style="margin:0;padding:0;">
                 <div class="navbar-header" style="width:100%;padding-left:10px;padding-right:10px;"> 
                     <div class="row" style="margin:0;padding:0;">
@@ -44,13 +44,13 @@
                         {{#if user}}
                             <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/users/reviews/{{user.id}}">Your Reviews</a></li>
                             <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/search">Search Album To Review</a></li>
-                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="#">Archived Weeks</a></li>
-                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="#">Random 10 Well Rated Albums</a></li>
+                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/archives">Archived Weeks</a></li>
+                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/random10">Random 10 Well Rated Albums</a></li>
                             <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/logout">Logout</a></li>
                         {{else}}
                             <li class="nav-item active"><a class="nav-link" style="color:rgb(209, 209, 209);" href="/login">Login/Register</a></li>
-                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="#">Archived Weeks</a></li>
-                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="#">Random 10 Well Rated Albums</a></li>
+                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/archives">Archived Weeks</a></li>
+                            <li class="nav-item"><a class="nav-link" style="color:rgb(209, 209, 209);"href="/random10">Random 10 Well Rated Albums</a></li>
                         {{/if}}
 
                     </ul>

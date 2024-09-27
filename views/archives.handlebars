@@ -1,0 +1,228 @@
+{{!-- 
+    - Adding album photo for archives of it
+    - link to album archive not going back to album archive
+    - delete and edit reviews for 30 min
+    - links to album archives at all reviews for album page
+    - scrolling up problem with archive boxes and horizantal line
+        -- Z-index:1
+ --}}
+
+{{#if album}}
+    <h2 class="fst-italic fw-bold text-center" style="font-size:45px;color:white;">
+        Album Top Five Archives:<br>
+    </h2>
+    <h2 class="fst-italic text-center" style="font-size:35px;padding-bottom:40px;color:rgb(183, 183, 183);">
+        {{album.title}}
+    </h2>
+{{else}}
+    <h2 class="fst-italic fw-bold text-center" style="font-size:35px;padding-bottom:40px;color:white;">
+        All Top Five Archives
+    </h2>
+{{/if}}
+
+{{#if album}}
+<div class="row">
+    <div class="col-6" style="top:40%;left:1%;max-width:30%;">
+        <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px;width:fit-content;">
+            <div class="row g-0">
+                <div class="col-auto">
+                    <img src={{album.albumArtUrl}} style="width:200px;height:200px;">
+                </div>
+                <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                    <p><b>
+                        {{album.totalRating}}/10
+                        <br><b>{{album.title}}</b>
+                        <br>{{album.artist}}</b>
+                        <br>{{album.year}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/if}}
+
+    {{#if album}}
+    <div class="col-12" style="max-width:70%;padding:0%;margin:0;">
+    {{/if}}
+        <div id="accordian" class="mx-auto" style="width:90%;">
+            {{#each archives}}
+                <div class="card">
+                    <div class="card-header" id="heading{{{@index}}}">
+                        <h5 class="mb-0">
+                            <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapse{{{@index}}}" aria-expanded="false" aria-controls="collapse{{{@index}}}">
+                                <p class="fst-italic fw-bold" style="color:black;font-size:25px;">Year: {{{@key}}}</p>
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapse{{{@index}}}" class="collapse" aria-labelledby="heading{{{@index}}}" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul class="list-group" style="display:grid;grid-template-columns: repeat(5, 1fr);">
+                                {{#each this}}
+                                    <li class="list-group-item">
+                                        {{#if this.isEmpty}}
+                                            <p style="color:gray;padding:0;margin:0;">Week {{@key}}:&nbsp;No Reviews</p>
+                                        {{else}}
+                                            {{#if ../../album}}
+                                                <a style="color:black;" href="/archives/album/{{{../../album.id}}}/{{{this.id}}}">Week {{@key}}</a>
+                                            {{else}}
+                                                <a style="color:black;" href="/archives/{{{this.id}}}">Week {{@key}}</a>
+                                            {{/if}}
+                                        {{/if}}
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+{{#if album}}
+    </div>
+</div>
+{{/if}}
+{{!-- router.get('/archives', archives.getArchives);
+router.get('/archives/:archive', archives.getArchives);
+router.get('/archives/album/:album', archives.getArchives);
+router.get('/archives/album/:album/:archive', archives.getArchives); --}}
+
+{{#if blob}}
+<hr style="height:1.5px;border-radius:0%;color:white;background-color:white;width:100%;marign-top:5px;">
+{{!-- Week and Top Album Row --}}
+<div class="row justify-content-start" style="margin-top:1px;padding-bottom:30px;">
+    {{!-- Week and Year title --}}
+    <div class="col-4">
+        <h3 class="fst-italic fw-bold" style="padding-left:10px;color: white;">
+            Top Albums {{blob.date.year}}
+            <br> Week {{blob.date.weekNumber}}
+        </h3>
+    </div>
+    {{!-- Top Album --}}
+    <div class="col-4 text-center">
+        {{#with blob.topAlbum}}
+            <a href="/albums/reviews/{{id}}">
+                <img src={{albumArtUrl}} class="text-center" style="margin-top:20px;margin-bottom:10px;width:220px;height:220px;">
+            </a>
+            <div>
+                <div class="panel default-panel rounded text-start mx-auto" style="width:250px;background-color:rgb(187, 187, 186);padding-left:10px;padding-right:10px;">
+                    <div class="row" style="padding-top:5px">
+                        <p class="col text-start" style="margin:0"><b>
+                            {{totalRating}}/10
+                        </b></p>
+                        <a href="/albums/reviews/{{id}}" class="col text-end" style="color:black;margin:0;">Reviews</a>
+                    </div>
+                    <div class="row" style="padding-bottom:7px;">
+                        <p class="text-start" style="margin:0;">
+                            <b>{{title}}</b>
+                            <br>{{artist}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {{/with}}
+    </div>
+</div>
+
+{{!-- The Top Five List --}}
+<div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:5px;padding-right:20px;width:95%; background-color:rgb(187, 187, 186);margin-bottom:20px;">
+    <div class="text-start fst-italic" style="font-size:17px;">
+        <p style="color:black;"><b>Top Five</b></p>
+    </div>
+    <div class="row">
+        {{#each blob.lists.topFiveAlbums}}
+            <div class="col" style="padding:0;margin:0;">
+                <div class="row g-0">
+                    <div class="col-auto" style="padding-right:5px;">
+                        <b>{{increment @index}}.</b>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/albums/reviews/{{this.id}}">
+                            <img src={{this.albumArtUrl}} style="width:100px;height:100px;">
+                        </a>
+                    </div>
+                    <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                        <p><b>
+                            {{this.totalRating}}/10
+                            <br><b>{{this.title}}</b>
+                            <br>{{this.artist}}
+                        </b></p>
+                    </div>
+                    {{#if (isNotLast @index ../blob.lists.topFiveAlbums)}}
+                        <div class="col" style="max-width:21px;">
+                            <div class="vl" style="height: 50%;width:1px;border-radius:0%;margin-left:5px;margin-right:15px;margin-top:100%;margin-bottom:100%;border-left:1px solid rgb(156, 156, 156);border-right:1px solid rgb(156, 156, 156);"></div>
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+
+ {{!-- The Genres Lists --}}
+{{#each blob.lists.topFiveByGenre}}
+    <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:5px;padding-right:20px;width:95%; background-color:rgb(187, 187, 186);margin-bottom:20px;">
+        <div class="text-start fst-italic" style="font-size:17px;">
+            <p style="color:black;"><b>{{this.name}}</b></p>
+        </div>
+        <div class="row">
+            {{#each this.albums}}
+                <div class="col" style="padding:0;margin:0;">
+                    <div class="row g-0">
+                        <div class="col-auto" style="padding-right:5px;">
+                            <b>{{increment @index}}.</b>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/albums/reviews/{{this.id}}">
+                                <img src={{this.albumArtUrl}} style="width:100px;height:100px;">
+                            </a>
+                        </div>
+                        <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                            <p><b>
+                                {{this.totalRating}}/10
+                                <br><b>{{this.title}}</b>
+                                <br>{{this.artist}}
+                            </b></p>
+                        </div>
+                        {{#if (isNotLast @index ../this.albums)}}
+                            <div class="col" style="max-width:21px;">
+                                <div class="vl" style="height: 50%;width:1px;border-radius:0%;margin-left:5px;margin-right:15px;margin-top:100%;margin-bottom:100%;border-left:1px solid rgb(156, 156, 156);border-right:1px solid rgb(156, 156, 156);"></div>
+                            </div>
+                        {{/if}}
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+{{/each}}
+{{/if}}
+
+{{!-- 
+
+- archive controller 
+- functions
+    - make archive - first test then add specific time of week and test specific times like every 30
+
+adding a new table
+    - id
+    - year - string
+    - weekNumber - string
+    - lists - JSON blob
+
+- run at a certian time of the week and day (save Json blob)
+- controller
+    - get list of all years 
+    - list out year
+
+    - multiple objects
+  
+
+- maybe add new id list attribute to album (list of ids from new table (only if the top album for that week))
+- add in reviews page to go to the album's top week archived if there?
+    - add two attributes to album table
+        - attribute of list of archive ids as on of top fives
+        - attribute of amount of tops
+        - attribute of amount of times in Fives
+        - render as archives list page with only the few weeks
+
+
+ --}}

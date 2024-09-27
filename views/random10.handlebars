@@ -1,16 +1,16 @@
-<h2 class="fst-italic fw-bold" style="font-size:35px;padding-left:10px;padding-bottom:10px;color:white;">
+<h2 class="fst-italic fw-bold" style="font-size:35px;padding-left:10px;padding-bottom:10px;">
     <div class="row">
-        <div class="col text-start">
-            {{topList.name}}
+        <div class="col text-start" style="color:white;">
+            Random 10 Well Rated Albums
         </div>
         <div class="col text-end" style="margin-right:1%;">
-            {{topList.date.year}} Week {{topList.date.weekNumber}}
+            <a href="/random10" style="color:black;">Generate New 10</a>
         </div> 
     </div>
 </h2>
 
-<div class="row" style="margin-top:40px;margin-left:0.5%;margin-right:0.5%;">
-    {{#each topList.list}}
+<div class="row" style="margin-top:40px;">
+    {{#each randList}}
         <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:fit-content;">
             <div class="row g-0">
                 <div class="col-auto" style="padding-right:5px;">

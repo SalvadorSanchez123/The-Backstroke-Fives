@@ -6,6 +6,7 @@ const token = process.env.DISCOGS_TOKEN;
 //router.post('/reviews/:user/:album', reviews.addOne);
 const addOne = async (req, res) => {
     const user = Number.parseInt(req.user.id);
+    // const user = Number.parseInt(req.params.user);
     const discogsAlbumId = Number.parseInt(req.params.album);
 
     const album = await prisma.album.findUnique({
@@ -26,12 +27,7 @@ const addOne = async (req, res) => {
             },
         });
         if (reviewExists) {
-            // res.redirect(`/albums/reviews/${album.id}`);
-            res.render('addreview', {
-                album: null,
-                message: "You've already reviewed this album",
-            });
-            return;
+            return res.redirect(`/reviews/view/${reviewExists.id}`);
         }
     }
 
@@ -70,7 +66,8 @@ const addOne = async (req, res) => {
                     name: genreName,
                 },
             });
-        } else {
+        }
+        else {
             confirmedGenre = genre;
         }
 
@@ -87,25 +84,9 @@ const addOne = async (req, res) => {
                 genreId: confirmedGenre.id,
             },
         });
-    } else {
+    }
+    else {
         confirmedAlbum = album;
-        let oldReviewCount = confirmedAlbum.reviews.length;
-        let newReviewCount = oldReviewCount + 1;
-        let newRating = ((confirmedAlbum.totalRating * oldReviewCount) + req.body.starRating) / newReviewCount;
-        try {
-            const updatedAlbum  = await prisma.album.update({
-                where: {
-                    discogsId: discogsAlbumId,
-                },
-                data: {
-                    totalRating: newRating,
-                },
-            });
-        } 
-        catch(err) {
-            res.status(404).send();
-            return;
-        }
     }
 
     // Add new review
@@ -118,6 +99,7 @@ const addOne = async (req, res) => {
         },
     });
 
+    await setTotalRating(confirmedAlbum.id);
     res.redirect(`/albums/reviews/${confirmedAlbum.id}`);
 }
 
@@ -127,26 +109,18 @@ const getAll = async (req, res) => {
 }
 
 const deleteOne = async (req, res) => {
-    const reviewId = Number.parseInt(req.params.review);
-    const reviewSealed = await prisma.review.findUnique({
-        where: {
-            id: reviewId,
-        },
-    });
     // can only delete 30 minutes after creation. After that, it's sealed.
-    let halfHourInSeconds = 30 * 60;
-    let elapsedSeconds = Date.now() - reviewSealed.createdAt.valueOf();
-    if (elapsedSeconds > halfHourInSeconds) {
-        res.send(200);
-        return;
-    }
     try {
-        const review  = await prisma.review.delete({
+        const reviewDeleted = await prisma.review.delete({
             where: {
-                id: reviewId,
+                id: Number.parseInt(req.params.review),
+            },
+            include: {
+                album: true,
             },
         });
-        res.send(review);
+        await setTotalRating(reviewDeleted.album.id);
+        res.redirect(`/albums/reviews/${reviewDeleted.album.id}`);
     } 
     catch(err) {
         res.status(404).send();
@@ -155,30 +129,25 @@ const deleteOne = async (req, res) => {
 }
 
 const updateOne = async (req, res) => {
-    const reviewId = Number.parseInt(req.params.review);
-    const reviewSealed = await prisma.review.findUnique({
-        where: {
-            id: reviewId,
-        },
-    });
     // can only update 30 minutes after creation. After that, it's sealed.
-    let halfHourInSeconds = 30 * 60;
-    let elapsedSeconds = Date.now() - reviewSealed.createdAt.valueOf();
-    if (elapsedSeconds > halfHourInSeconds) {
-        res.send(200);
-        return;
-    }
-
     try {
-        const review  = await prisma.review.update({
+        const newReview  = await prisma.review.update({
             where: {
-                id: reviewId,
+                id: Number.parseInt(req.params.review),
             },
-            data: req.body,
+            include: {
+                album: true,
+            },
+            data: {
+                starRating: req.body.starRating,
+                comment: req.body.comment,
+            },
         });
-        res.send(review);
+        await setTotalRating(newReview.album.id);
+        res.redirect(`/reviews/view/${newReview.id}`);
     } 
     catch(err) {
+        console.log(err);
         res.status(404).send();
         return;
     }
@@ -204,7 +173,29 @@ const getOne = async (req, res) => {
 }
 
 const getAddReviewPage = async (req, res) => {
-    const discogsAlbumId = req.params.album;
+    const discogsAlbumId = Number.parseInt(req.params.album);
+    const user = Number.parseInt(req.user.id);
+    // const user = Number.parseInt(req.params.user);
+
+    const album = await prisma.album.findUnique({
+        where: {
+            discogsId: discogsAlbumId,
+        },
+        include: {
+            reviews: true,
+        },
+    });
+    if(album) {
+        const reviewExists = await prisma.review.findFirst({
+            where: {
+                albumId: album.id,
+                reviewerId: user,
+            },
+        });
+        if (reviewExists) {
+            return res.redirect(`/reviews/view/${reviewExists.id}`);
+        }
+    }
 
     const mastersUrl = `https://api.discogs.com/masters/${discogsAlbumId}?token=${token}`;
     const mastersRes = await fetch(mastersUrl);
@@ -224,10 +215,88 @@ const getAddReviewPage = async (req, res) => {
         year: `${mainReleaseJson.year}`,
     };
 
-    return res.render('addreview', { 
-        album: albumObject,
-        message: null,
+    return res.render('addreview', { album: albumObject, review: null });
+}
+
+const getUpdatePage = async (req, res) => {
+    const review = await prisma.review.findUnique({
+        where: {
+            id: Number.parseInt(req.params.review),
+        },
+        include: {
+            reviewer: true,
+            album: true,
+        },
     });
+    return res.render('addreview', { album: review.album, review: review });
+}
+
+
+const getReviewEdit = async (req, res) => {
+    let review = await prisma.review.findUnique({
+        where: {
+            id: Number.parseInt(req.params.review),
+        },
+        include: {
+            reviewer: true,
+            album: true,
+        },
+    });
+
+    //Can only update within 30 minutes of being created
+    let halfHourInMilliseconds = 30 * 60 * 1000 * 1000;
+    let elapsedMilliseconds = Date.now().valueOf() - review.createdAt.valueOf();
+    let canUpdate = elapsedMilliseconds < halfHourInMilliseconds ? true : false;
+    //Ensure that the user updating this review is the user that is logged in
+    if (req?.user) {
+        canUpdate = review.reviewer.id === req.user.id ? canUpdate : false;
+    }
+    else {
+        canUpdate = false;
+    }
+    const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(review.createdAt);
+    const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(review.createdAt);
+    const day = new Intl.DateTimeFormat('en', { day: 'numeric' }).format(review.createdAt);
+  
+    review.createdAt = `${day}-${month}-${year}`;
+    review.album.totalRating = Number.parseFloat(Math.trunc(review.album.totalRating * 10)) / 10;
+    return res.render('reviewedit', { review: review, canUpdate: canUpdate });
+}
+
+const setTotalRating = async (albumId) => {
+    const album = await prisma.album.findUnique({
+        where: {
+            id: Number.parseInt(albumId),
+        },
+        include: {
+            reviews: true,
+        },
+    });
+
+    let newTotalRating = 0;
+    if (album.reviews.length > 0) {
+        let count = album.reviews.length;
+        let sum = 0;
+        album.reviews.forEach( (review) => {
+            sum += Number.parseFloat(review.starRating);
+        });
+        newTotalRating = sum / count;
+    }
+    
+    try{
+        const newAlbumRating = await prisma.album.update({
+            where: {
+                id: album.id,
+            },
+            data: {
+                totalRating: newTotalRating,
+            },
+        });
+    }
+    catch(err) {
+        res.status(404).send();
+        return;
+    }
 }
 
 export default {
@@ -237,4 +306,7 @@ export default {
     updateOne,
     getOne,
     getAddReviewPage,
+    getReviewEdit,
+    getUpdatePage,
+    setTotalRating,
 }

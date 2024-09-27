@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import albums from './album.controller.js';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek.js';
+dayjs.extend(isoWeek);
 
 const prisma = new PrismaClient();
 
@@ -82,8 +84,8 @@ const getOne = async (req, res) => {
 
 //router.get('/genres/toplist/:genre', genres.getTopListByGenre);
 const getTopListByGenre = async (req, res) => {
-    const weekNumber = moment().isoWeek();
-    const year = moment().year();
+    const weekNumber = dayjs().isoWeek();
+    const year = dayjs().isoWeekYear();
 
     const genreId = Number.parseInt(req.params.genre);
 
@@ -133,8 +135,8 @@ const getTopListByGenre = async (req, res) => {
 
 
 const getTopList = async (req, res) => {
-    const weekNumber = moment().isoWeek();
-    const year = moment().year();
+    const weekNumber = dayjs().isoWeek();
+    const year = dayjs().isoWeekYear();
 
     const allAlbums = await prisma.album.findMany({
         include: {
@@ -165,7 +167,7 @@ const getTopList = async (req, res) => {
     }));
 
     const topListObject = {
-        name: "Top Albums: Full List",
+        name: "Top Albums: Full List",//new name (All reviewed this week)
         list: topListOfficial,
         date: {
             weekNumber: weekNumber,

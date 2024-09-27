@@ -1,6 +1,6 @@
 {{#if topLists.topAlbum}}
 {{!-- Week and Top Album Row --}}
-<div class="row justify-content-start" style="padding-bottom:30px;">
+<div class="row justify-content-start" style="margin-top:1px;padding-bottom:30px;">
     {{!-- Week and Year title --}}
     <div class="col-4">
         <h3 class="fst-italic fw-bold" style="padding-left:10px;color: white;">
@@ -11,7 +11,9 @@
     {{!-- Top Album --}}
     <div class="col-4 text-center">
         {{#with topLists.topAlbum}}
-            <img src={{albumArtUrl}} class="text-center" style="margin-top:20px;margin-bottom:10px;width:220px;height:220px;">
+            <a href="/albums/reviews/{{id}}"></a>
+                <img src={{albumArtUrl}} class="text-center" style="margin-top:20px;margin-bottom:10px;width:220px;height:220px;">
+            </a>
             <div>
                 <div class="panel default-panel rounded text-start mx-auto" style="width:250px;background-color:rgb(187, 187, 186);padding-left:10px;padding-right:10px;">
                     <div class="row" style="padding-top:5px">
@@ -35,12 +37,11 @@
 {{!-- The Top Five List --}}
 <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:5px;padding-right:20px;width:95%; background-color:rgb(187, 187, 186);margin-bottom:20px;">
     <div class="text-start fst-italic" style="font-size:17px;">
-        <a href="/toplist" style="color:black;"><b>Top Five</b></a>
+        <a href="/toplist" style="color:black;"><b>All Reviewed</b></a>
     </div>
     <div class="row">
         {{#each topLists.lists.topFiveAlbums}}
             <div class="col" style="padding:0;margin:0;">
-            {{!-- <div class="container"> --}}
                 <div class="row g-0">
                     <div class="col-auto" style="padding-right:5px;">
                         <b>{{increment @index}}.</b>
@@ -63,7 +64,6 @@
                         </div>
                     {{/if}}
                 </div>
-            {{!-- </div> --}}
             </div>
         {{/each}}
     </div>

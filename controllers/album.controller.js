@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import moment from 'moment';
 import fetch from 'node-fetch';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek.js';
+dayjs.extend(isoWeek);
 
 const prisma = new PrismaClient();
 const token = process.env.DISCOGS_TOKEN;
@@ -74,14 +76,14 @@ const getAlbumsReviewedThisWeekSorted = (allAlbums) => {
     // Albums reviewed this week
 
     //commented out for the sake of keeping portfolio presentable at all times
-    // const albumsReviewedThisWeek = albumsFromthisYear.filter(album => {
-    //     return album.reviews.some(review => {
-    //         let created = new Date(review.createdAt);
-    //         let lastMonday = new Date(moment().startOf('isoWeek'));
-    //         return created > lastMonday;
-    //     });
-    // });
-    const albumsReviewedThisWeek = albumsFromthisYear;
+    const albumsReviewedThisWeek = albumsFromthisYear.filter(album => {
+        return album.reviews.some(review => {
+            let created = new Date(review.createdAt);
+            let lastMonday = new Date(dayjs().startOf('isoWeek'));
+            return created > lastMonday;
+        });
+    });
+    // const albumsReviewedThisWeek = albumsFromthisYear;
 
     const reviewedAndSortedAlbums  = albumsReviewedThisWeek.sort((albumA, albumB) => {
         let a = Number.parseFloat(albumA.totalRating);
@@ -142,8 +144,8 @@ const getTopAlbum = async () => {
 
 
 const getTopFiveLists = async (req, res) => {
-    const weekNumber = moment().isoWeek();
-    const year = moment().year();
+    const weekNumber = dayjs().isoWeek();
+    const year = dayjs().isoWeekYear();
 
     //Top five:
     //get all albums
@@ -157,14 +159,15 @@ const getTopFiveLists = async (req, res) => {
 
     //if no albums reviewed this week
     if (albumsReviewedThisWeek.length == 0) {
-        res.render('home', { topLists: {
+        return {
             topAlbum: null,
+            lists: null,
             date: {
                 weekNumber: weekNumber,
                 year: year,
             },
-        } });
-        return;
+            albumsToArchive: null,
+        };
     }
 
     //officail rating and return filtered data
@@ -189,7 +192,8 @@ const getTopFiveLists = async (req, res) => {
         };
     }));
 
-    //Top five from all Genre:
+    //Top five from all Genre and Full List of albums in the archive collection:
+    let albumsToArchive = [];
     //Get all genres
     const allGenres = await prisma.genre.findMany({
         include: {
@@ -209,6 +213,8 @@ const getTopFiveLists = async (req, res) => {
         //official rating and filtered data
         const topFiveGenreAlbums = genreAlbumsReviewedThisWeek.slice(0,5);//top five
         const topFiveGenreAlbumsOfficial = topFiveGenreAlbums.map((album) => {
+            albumsToArchive.push({ id: album.id });
+
             const officialGenreRating = Number.parseFloat(Math.trunc(album.totalRating * 10)) / 10;
             return {
                 id: album.id,
@@ -247,11 +253,17 @@ const getTopFiveLists = async (req, res) => {
             weekNumber: weekNumber,
             year: year,
         },
+        albumsToArchive: albumsToArchive,
     };
 
-    res.render('home', { topLists: topLists });
-    // res.send(topLists);
+    return topLists;
 }
+
+const getHomePage = async (req, res) => {
+    const topLists = await getTopFiveLists(req, res);
+    return res.render('home', { topLists: topLists });
+}
+
 
 
 const getAllReviews = async (req, res) => {
@@ -262,6 +274,7 @@ const getAllReviews = async (req, res) => {
         },
         include: {
             reviews: true,
+            archives: true,
         },
     });
 
@@ -279,6 +292,7 @@ const getAllReviews = async (req, res) => {
         return {
             user: user,
             review: {
+                id: review.id,
                 starRating: review.starRating,
                 comment: review.comment,
                 createdAt: `${day}-${month}-${year}`,
@@ -287,14 +301,17 @@ const getAllReviews = async (req, res) => {
     }));
 
     const officialRating = Number.parseFloat(Math.trunc(album.totalRating * 10)) / 10;
+    const hasArchives = album.archives.length == 0 ? false : true;
     const albumObject = {
         album: {
+            id: album.id,
             albumArtUrl: album.albumArtUrl,
             title: album.title,
             country: album.country,
             artist: album.artist,
             year: album.year,
             totalRating: officialRating,
+            hasArchives: hasArchives,
         },
         reviewersList: reviewers,
     };
@@ -313,7 +330,52 @@ const getAll = async (req, res) => {
 }
 
 
+const getRandom10 = async (req, res) => {
+    const allAlbums = await prisma.album.findMany();
+    // Well rated albums being over 7/10
+    const wellRatedAlbums = allAlbums.filter(album => album.totalRating >= 7);
+
+    let currentIndex = wellRatedAlbums.length;
+    // While there remains elements to shuffle
+    while (currentIndex != 0) {
+      // Pick a remaining element
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      // And swap it with the current element.
+      [wellRatedAlbums[currentIndex], wellRatedAlbums[randomIndex]] = [wellRatedAlbums[randomIndex], wellRatedAlbums[currentIndex]];
+    }
+
+    const randListObj = wellRatedAlbums.slice(0,10).map(album => {
+        let officialRating = Number.parseFloat(Math.trunc(album.totalRating * 10)) / 10;
+        return {
+            id: album.id,
+            albumArtUrl: album.albumArtUrl,
+            title: album.title,
+            country: album.country,
+            artist: album.artist,
+            year: album.year,
+            totalRating: officialRating,
+        };
+    });
+
+    res.render('random10', { randList: randListObj });
+}
+
+const getOne = async (req, res) => {
+    const album = await prisma.album.findUnique({
+        where: {
+            id: Number.parseInt(req.params.album),
+        },
+        include: {
+            reviews: true,
+        },
+    });
+
+    res.send(album);
+}
+
 export default {
+    getOne,
     getTopFiveLists,
     searchAlbumToReview,
     getSearchPage,
@@ -322,4 +384,6 @@ export default {
     getAllReviews,
     getAll,
     getAlbumsReviewedThisWeekSorted,
+    getRandom10,
+    getHomePage,
 }

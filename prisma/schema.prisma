@@ -49,6 +49,7 @@ model Album {
   reviews     Review[]
   genre       Genre?    @relation(fields: [genreId], references: [id])
   genreId     Int?
+  archives    Archive[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -56,6 +57,16 @@ model Album {
 model Genre {
   id          Int       @id @default(autoincrement())
   name        String    @unique
+  albums      Album[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Archive {
+  id          Int       @id @default(autoincrement())
+  week        String
+  year        String
+  lists       Json
   albums      Album[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

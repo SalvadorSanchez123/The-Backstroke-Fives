@@ -5,6 +5,11 @@ import session from 'express-session';
 import passport from 'passport';
 import passportConfig from './config/passport.js';
 import flash from 'connect-flash';
+import cron from 'node-cron';
+import archives from './controllers/archive.controller.js';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek.js';
+dayjs.extend(isoWeek);
 
 const app = express();
 
@@ -26,14 +31,13 @@ passportConfig(passport);
 app.engine('handlebars', engine({ defaultLayout: "main" }));
 app.set('view engine', 'handlebars');
 app.set('views', './views');
-create({}).handlebars.registerHelper('increment', (index) => index + 1);
-create({}).handlebars.registerHelper('isNotLast', (index, arr) => {
-    if ((index + 1) == arr.length) {
-        return false;
-    }
-    else {
-        return true;
-    }
+create().handlebars.registerHelper('increment', (index) => index + 1);
+create().handlebars.registerHelper('isNotLast', (index, arr) => {
+    return (index + 1) == arr.length ? false : true;
+});
+create().handlebars.registerHelper('json', (context) => {
+    console.log("hello" + context);
+    //return console.log(JSON.stringify(context, null, 4));
 });
 
 
@@ -52,9 +56,17 @@ app.use((req, res, next) => {
     next();
 });
 
+// Saves new archive at a minute before midnight Sunday night central time before the new ISO week
+cron.schedule("59 23 * * Sunday", async () => {
+    await archives.addOne();
+}, {
+    scheduled: true,
+    timezone: "US/Central",
+});
+
+
 //attach app to router
 app.use(routes);
-
 
 //listen to requests
 app.listen(3000, () => {

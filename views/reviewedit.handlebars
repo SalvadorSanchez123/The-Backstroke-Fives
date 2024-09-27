@@ -1,0 +1,63 @@
+<h2 class="fst-italic fw-bold text-center" style="font-size:45px;padding-bottom:40px;color:white;">
+    Review View/Edit
+</h2>
+
+<div class="row justify-content-center">
+    <div class="col-6" style="position:fixed;top:40%;left:1%;max-width:30%;">
+        <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px;width:fit-content;">
+            <div class="row g-0">
+                <div class="col-auto">
+                    <img src={{review.album.albumArtUrl}} style="width:200px;height:200px;">
+                </div>
+                <div class="col text-start" style="padding-left:5px;margin:0;font-size:15px;">
+                    <p><b>
+                        {{review.album.totalRating}}/10
+                        <br><b>{{review.album.title}}</b>
+                        <br>{{review.album.artist}}</b>
+                        <br>{{review.album.year}}
+                        {{#if review.album.hasArchives}}
+                        <br><a href="/archives/album/{{review.album.id}}" style="color:black;">Album's Top Five Archives</a>
+                        {{/if}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6" style="padding-right:20px;margin-left:300px;padding-top:6%;">
+        <div class="panel default-panel rounded mx-auto" style="padding-bottom:15px;padding-left:20px;padding-top:15px;padding-right:20px; background-color:rgb(187, 187, 186);margin-bottom:20px; width:100%;">
+            <div class="row">
+                <div class="col text-start">
+                    <b>{{review.reviewer.username}}</b>&nbsp;{{review.starRating}}/10
+                </div>
+                <div class="col text-end">
+                    {{review.createdAt}}
+                </div>
+            </div>
+            <div>
+                {{review.comment}}
+            </div>
+
+            <hr style="height:1.5px;border-radius:0%;color:white;background-color:black;margin:0;width:100%;margin-top:10px;margin-bottom:10px;">
+            {{#if canUpdate}}
+                <div class="row">
+                    <div class="col text-center">
+                        <a class="btn btn-secondary" href="/reviews/getupdate/{{review.id}}" style="color:black;margin-right:40px;" role="button">Edit</a>
+                    </div>
+                    <form class="col text-center" action="/reviews/delete/{{review.id}}" method="POST">
+                        <button class="btn btn-secondary" type="submit" style="color:black;">Delete</button>
+                    </form>
+                </div>
+            {{else}}
+                <div class="fst-italic fw-bold text-center" style="color:rgb(96, 96, 96)">
+                    This review cannot be edited
+                    {{!-- mention somewhere that there's a 30 minute limit --}}
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{!-- 
+    - Be abe to click into review view/edit when logged in and in album reviews or user page
+
+ --}}

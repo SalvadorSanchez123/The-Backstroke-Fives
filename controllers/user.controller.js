@@ -112,6 +112,7 @@ const getUserWithReviews = async (req, res) => {
 
         return {
             review: {
+                id: review.id,
                 starRating: review.starRating,
                 comment: review.comment,
                 createdAt: `${day}-${month}-${year}`,
